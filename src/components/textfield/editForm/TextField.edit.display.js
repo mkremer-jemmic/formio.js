@@ -46,6 +46,13 @@ export default [
     }
   },
   {
+    weight: 413,
+    type: 'checkbox',
+    input: true,
+    key: 'barcodeScanning',
+    label: 'Allow barcode scanning'
+  },
+  {
     weight: 410,
     type: 'textfield',
     input: true,

@@ -43,6 +43,11 @@ export default class BaseComponent extends Component {
       customClass: '',
 
       /**
+       * Whether to support barcode scanning for this input field
+       */
+      barcodeScanning: false,
+
+      /**
        * The input suffix.
        */
       suffix: '',
@@ -699,6 +704,9 @@ export default class BaseComponent extends Component {
     }
     if (this.component.customClass) {
       className += this.component.customClass;
+    }
+    if (this.component.barcodeScanning) {
+      className += 'qr';
     }
     if (this.hasInput && this.component.validate && this.component.validate.required) {
       className += ' required';
