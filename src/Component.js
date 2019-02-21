@@ -474,6 +474,8 @@ export default class Component {
         return 'fa fa-window-restore';
       case 'menu-hamburger':
         return 'fa fa-bars';
+      case 'barcode':
+        return 'fa fa-barcode';
       default:
         return spinning ? `fa fa-${name} fa-spin` : `fa fa-${name}`;
     }

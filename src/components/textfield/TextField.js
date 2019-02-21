@@ -63,7 +63,7 @@ export default class TextFieldComponent extends BaseComponent {
   }
 
   createInput(container) {
-    if (!this.isMultipleMasksField) {
+    if (!this.isMultipleMasksField && !this.isBarcodeScanningField) {
       const inputGroup = super.createInput(container);
       this.addCounter(container);
       return inputGroup;
@@ -71,23 +71,67 @@ export default class TextFieldComponent extends BaseComponent {
     //if component should have multiple masks
     const id = `${this.key}`;
     const attr = this.info.attr;
-    attr.class += ' formio-multiple-mask-input';
+    if (this.isMultipleMasksField) {
+      attr.class += ' formio-multiple-mask-input';
+    }
+    if (this.isBarcodeScanningField) {
+      attr.class += ' formio-jemmic-barcode-input';
+    }
     attr.id = id;
     const textInput = this.ce('input', attr);
 
+    let inputGroupClass = 'input-group';
+    if (this.isMultipleMasksField) {
+      inputGroupClass += ' formio-multiple-mask-container';
+    }
+    if (this.isBarcodeScanningField) {
+      inputGroupClass += ' formio-jemmic-barcode-container';
+    }
     const inputGroup = this.ce('div', {
-      class: 'input-group formio-multiple-mask-container'
+      class: inputGroupClass
     });
-    this.addPrefix(textInput, inputGroup);
-    const maskInput = this.createMaskInput(textInput);
-    this.addTextInputs(textInput, maskInput, inputGroup);
-    this.addSuffix(textInput, inputGroup);
+    let isTextInputAdded = false;
+    if (this.isMultipleMasksField) {
+      this.addPrefix(textInput, inputGroup);
+      const maskInput = this.createMaskInput(textInput);
+      this.addTextInputs(textInput, maskInput, inputGroup);
+      isTextInputAdded = true;
+      this.addSuffix(textInput, inputGroup);
+    }
+    if (this.isBarcodeScanningField) {
+      this.addBarcodeButton(inputGroup, textInput, !isTextInputAdded);
+    }
 
     this.errorContainer = container;
     this.setInputStyles(inputGroup);
     this.addCounter(inputGroup);
     container.appendChild(inputGroup);
     return inputGroup;
+  }
+
+  addSuffixButton(container, iconName) {
+    const suffix = this.ce('span', {
+      class: 'input-group-addon',
+      style: 'cursor: pointer'
+    });
+    suffix.appendChild(this.getIcon(iconName));
+    container.appendChild(suffix);
+    return suffix;
+  }
+
+  addBarcodeButton(container, textInput, addInput) {
+    if (addInput) {
+      this.addPrefix(textInput, container);
+      this.addInput(textInput, container);
+      this.addSuffix(textInput, container);
+    }
+    const button = this.addSuffixButton(container, 'barcode');
+    button.addEventListener('click', () => {
+      window.postMessage(JSON.stringify({
+        type: 'scan-barcode',
+        elem: textInput.getAttribute('name')
+      }), '*');
+    });
   }
 
   addCounter(container) {
@@ -262,6 +306,10 @@ export default class TextFieldComponent extends BaseComponent {
 
   get isMultipleMasksField() {
     return this.component.allowMultipleMasks && !!this.component.inputMasks && !!this.component.inputMasks.length;
+  }
+
+  get isBarcodeScanningField() {
+    return this.component.barcodeScanning && !this.shouldDisable;
   }
 
   getMaskByName(maskName) {

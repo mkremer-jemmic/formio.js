@@ -46,7 +46,7 @@ export default [
     }
   },
   {
-    weight: 413,
+    weight: 400,
     type: 'checkbox',
     input: true,
     key: 'barcodeScanning',
